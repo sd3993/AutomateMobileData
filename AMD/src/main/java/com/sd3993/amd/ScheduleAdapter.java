@@ -33,7 +33,9 @@ public class ScheduleAdapter extends BaseAdapter {
     }
 
     @Override
-    public int getCount() { return (timersArrayList.size()); }
+    public int getCount() {
+        return (timersArrayList.size());
+    }
 
     @Override
     public Object getItem(int position) {
@@ -46,22 +48,22 @@ public class ScheduleAdapter extends BaseAdapter {
     }
 
     @Override
-    public View getView(final int position, View convertView, final ViewGroup parent) {
+    public View getView(final int position, View convertView, ViewGroup parent) {
 
-        final Holder holder;
+        Holder holder;
 
-        if(convertView==null) {
+        if (convertView == null) {
             LayoutInflater inflater = (LayoutInflater) context
                     .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
             convertView = inflater.inflate(R.layout.list_row, parent, false);
-            holder=new Holder();
+            holder = new Holder();
 
-            holder.s = (TextView)convertView.findViewById(R.id.startTime);
-            holder.e = (TextView)convertView.findViewById(R.id.endTime);
+            holder.s = (TextView) convertView.findViewById(R.id.startTime);
+            holder.e = (TextView) convertView.findViewById(R.id.endTime);
             holder.c = (CheckBox) convertView.findViewById(R.id.alarm_enabled);
 
             convertView.setTag(holder);
-        }else {
+        } else {
             holder = (Holder) convertView.getTag();
         }
 
@@ -77,7 +79,7 @@ public class ScheduleAdapter extends BaseAdapter {
         (holder.e).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                showTimePickerDialog("end",position);
+                showTimePickerDialog("end", position);
             }
         });
 
