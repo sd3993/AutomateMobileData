@@ -29,7 +29,7 @@ public class Schedule extends Activity {
         setContentView(R.layout.schedule);
         scheduleAdapter = new ScheduleAdapter(this, timersArrayList);
         scheduleAdapter.fragmentManager = getFragmentManager();
-        listView = (ListView) this.findViewById(R.id.listView_items);
+        listView = (ListView) this.findViewById(R.id.listView);
         listView.setAdapter(scheduleAdapter);
         SwipeToDismissListener touchListener = new SwipeToDismissListener(listView,
                 new SwipeToDismissListener.DismissCallbacks() {

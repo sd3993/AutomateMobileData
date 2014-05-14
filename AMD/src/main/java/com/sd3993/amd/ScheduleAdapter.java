@@ -12,6 +12,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
+import android.widget.CheckBox;
 import android.widget.TextView;
 import android.widget.TimePicker;
 
@@ -19,10 +20,10 @@ import java.util.ArrayList;
 
 public class ScheduleAdapter extends BaseAdapter {
 
-    Activity context;
     static ArrayList<Timers> timersArrayList = new ArrayList<Timers>();
     static String type;
     static int pos;
+    Activity context;
     FragmentManager fragmentManager;
 
     public ScheduleAdapter(Activity context, ArrayList<Timers> timersArrayList) {
@@ -45,9 +46,9 @@ public class ScheduleAdapter extends BaseAdapter {
     }
 
     @Override
-    public View getView(final int position, View convertView, ViewGroup parent) {
+    public View getView(final int position, View convertView, final ViewGroup parent) {
 
-        Holder holder;
+        final Holder holder;
 
         if(convertView==null) {
             LayoutInflater inflater = (LayoutInflater) context
@@ -57,6 +58,7 @@ public class ScheduleAdapter extends BaseAdapter {
 
             holder.s = (TextView)convertView.findViewById(R.id.startTime);
             holder.e = (TextView)convertView.findViewById(R.id.endTime);
+            holder.c = (CheckBox) convertView.findViewById(R.id.alarm_enabled);
 
             convertView.setTag(holder);
         }else {
@@ -69,7 +71,7 @@ public class ScheduleAdapter extends BaseAdapter {
         (holder.s).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                showTimePickerDialog("start",position);
+                showTimePickerDialog("start", position);
             }
         });
         (holder.e).setOnClickListener(new View.OnClickListener() {
@@ -79,12 +81,71 @@ public class ScheduleAdapter extends BaseAdapter {
             }
         });
 
+        (holder.s).setOnTouchListener(new SwipeToDismissListSubItem(
+                parent, null, new SwipeToDismissListSubItem.DismissCallbacks() {
+            @Override
+            public boolean canDismiss(Object token) {
+                return true;
+            }
+
+            @Override
+            public void onDismiss(View view, Object token) {
+                //parent.removeView(holder.s);
+                //convertView.removeAllViews();
+                timersArrayList.remove(timersArrayList.get(position));
+                notifyDataSetChanged();
+            }
+        }
+        ));
+
+        (holder.e).setOnTouchListener(new SwipeToDismissListSubItem(
+                parent, null, new SwipeToDismissListSubItem.DismissCallbacks() {
+            @Override
+            public boolean canDismiss(Object token) {
+                return true;
+            }
+
+            @Override
+            public void onDismiss(View view, Object token) {
+                //parent.removeView(holder.s);
+                //convertView.removeAllViews();
+                timersArrayList.remove(timersArrayList.get(position));
+                notifyDataSetChanged();
+            }
+        }
+        ));
+
+        (holder.c).setOnTouchListener(new SwipeToDismissListSubItem(
+                parent, null, new SwipeToDismissListSubItem.DismissCallbacks() {
+            @Override
+            public boolean canDismiss(Object token) {
+                return true;
+            }
+
+            @Override
+            public void onDismiss(View view, Object token) {
+                //parent.removeView(holder.s);
+                //convertView.removeAllViews();
+                timersArrayList.remove(timersArrayList.get(position));
+                notifyDataSetChanged();
+            }
+        }
+        ));
+
         return convertView;
+    }
+
+    public void showTimePickerDialog(String type, int pos) {
+        ScheduleAdapter.type = type;
+        ScheduleAdapter.pos = pos;
+        DialogFragment timePickerFragment = new TimePickerFragment();
+        timePickerFragment.show(fragmentManager, "timePicker");
     }
 
     static class Holder {
         TextView s;
         TextView e;
+        CheckBox c;
     }
 
     public static class TimePickerFragment extends DialogFragment
@@ -94,27 +155,25 @@ public class ScheduleAdapter extends BaseAdapter {
         public Dialog onCreateDialog(Bundle savedInstanceState) {
             // Use the current time as the default values for the picker
 
-            String initTime="";
+            String initTime = "";
 
             if (type.equalsIgnoreCase("start")) {
                 initTime = (timersArrayList.get(pos)).startTime + ' ';
-                if(initTime.equals("Start Time "))
-                    initTime="00:00 ";
-            }
-            else if (type.equalsIgnoreCase("end")) {
+                if (initTime.equals("Start Time "))
+                    initTime = "00:00 ";
+            } else if (type.equalsIgnoreCase("end")) {
                 initTime = (timersArrayList.get(pos)).endTime + ' ';
-                if(initTime.equals("End Time "))
-                    initTime="00:00 ";
+                if (initTime.equals("End Time "))
+                    initTime = "00:00 ";
             }
 
-            int hour=Integer.parseInt(initTime.substring(0,initTime.indexOf(':')));
-            int minute=Integer.parseInt(initTime.substring(initTime.indexOf(':')+1,initTime.indexOf(' ')));
+            int hour = Integer.parseInt(initTime.substring(0, initTime.indexOf(':')));
+            int minute = Integer.parseInt(initTime.substring(initTime.indexOf(':') + 1, initTime.indexOf(' ')));
 
-            if(initTime.substring(initTime.indexOf(' ')).trim().equals("PM")) {
+            if (initTime.substring(initTime.indexOf(' ')).trim().equals("PM")) {
                 if (hour != 12)
                     hour += 12;
-            }
-            else if(initTime.substring(initTime.indexOf(' ')).trim().equals("AM")) {
+            } else if (initTime.substring(initTime.indexOf(' ')).trim().equals("AM")) {
                 if (hour == 12)
                     hour = 0;
             }
@@ -127,30 +186,23 @@ public class ScheduleAdapter extends BaseAdapter {
         public void onTimeSet(TimePicker view, int hour, int minute) {
             // Do something with the time chosen by the user
 
-            String am_pm=""; String m=Integer.toString(minute);
+            String am_pm = "";
+            String m = Integer.toString(minute);
 
-            if(hour>=12) {
+            if (hour >= 12) {
                 am_pm = "PM";
-                if (hour!=12)
+                if (hour != 12)
                     hour -= 12;
-            }
-            else if(hour<12) {
-                am_pm="AM";
-                if(hour==0)
-                    hour=12;
+            } else if (hour < 12) {
+                am_pm = "AM";
+                if (hour == 0)
+                    hour = 12;
             }
 
-            if(m.length()==1)
-                m="0"+m;
+            if (m.length() == 1)
+                m = "0" + m;
 
-            Schedule.updateList(type, pos, (hour+":"+m+" "+am_pm));
+            Schedule.updateList(type, pos, (hour + ":" + m + " " + am_pm));
         }
-    }
-
-    public void showTimePickerDialog(String type, int pos) {
-        ScheduleAdapter.type=type;
-        ScheduleAdapter.pos=pos;
-        DialogFragment timePickerFragment = new TimePickerFragment();
-        timePickerFragment.show(fragmentManager, "timePicker");
     }
 }
