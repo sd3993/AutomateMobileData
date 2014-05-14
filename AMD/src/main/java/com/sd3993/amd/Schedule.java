@@ -11,18 +11,46 @@ import java.util.ArrayList;
 
 public class Schedule extends Activity {
 
-    public ListView listView;
     static public ScheduleAdapter scheduleAdapter;
     static ArrayList<Timers> timersArrayList = new ArrayList<Timers>();
+    public ListView listView;
+
+    public static void updateList(String type, int pos, String time) {
+        if (type.equalsIgnoreCase("start"))
+            timersArrayList.get(pos).startTime = time;
+        else if (type.equalsIgnoreCase("end"))
+            timersArrayList.get(pos).endTime = time;
+        scheduleAdapter.notifyDataSetChanged();
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.schedule);
-        scheduleAdapter = new ScheduleAdapter(this,timersArrayList);
-        scheduleAdapter.fragmentManager=getFragmentManager();
-        listView = (ListView)this.findViewById(R.id.listView_items);
+        scheduleAdapter = new ScheduleAdapter(this, timersArrayList);
+        scheduleAdapter.fragmentManager = getFragmentManager();
+        listView = (ListView) this.findViewById(R.id.listView_items);
         listView.setAdapter(scheduleAdapter);
+        SwipeToDismissListener touchListener = new SwipeToDismissListener(listView,
+                new SwipeToDismissListener.DismissCallbacks() {
+                    @Override
+                    public boolean canDismiss(int position) {
+                        return true;
+                    }
+
+                    @Override
+                    public void onDismiss(ListView listView, int[] reverseSortedPositions) {
+                        for (int position : reverseSortedPositions) {
+                            timersArrayList.remove(timersArrayList.get(position));
+                        }
+                        scheduleAdapter.notifyDataSetChanged();
+                    }
+                }
+        );
+        listView.setOnTouchListener(touchListener);
+        // Setting this scroll listener is required to ensure that during ListView scrolling,
+        // we don't look for swipes.
+        listView.setOnScrollListener(touchListener.makeScrollListener());
     }
 
     @Override
@@ -50,14 +78,6 @@ public class Schedule extends Activity {
 
     public void addAlarm() {
         timersArrayList.add(new Timers());
-        scheduleAdapter.notifyDataSetChanged();
-    }
-
-    public static void updateList(String type, int pos, String time) {
-        if(type.equalsIgnoreCase("start"))
-            timersArrayList.get(pos).startTime = time;
-        else if(type.equalsIgnoreCase("end"))
-            timersArrayList.get(pos).endTime = time;
         scheduleAdapter.notifyDataSetChanged();
     }
 }
