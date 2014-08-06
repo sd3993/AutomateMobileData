@@ -20,7 +20,7 @@ import java.util.ArrayList;
 
 public class ScheduleAdapter extends BaseAdapter {
 
-    static ArrayList<Timers> timersArrayList = new ArrayList<Timers>();
+    static ArrayList<Timers> timersArrayList;
     static String type;
     static int pos;
     Activity context;
@@ -82,57 +82,6 @@ public class ScheduleAdapter extends BaseAdapter {
                 showTimePickerDialog("end", position);
             }
         });
-
-        (holder.s).setOnTouchListener(new SwipeToDismissListSubItem(
-                parent, null, new SwipeToDismissListSubItem.DismissCallbacks() {
-            @Override
-            public boolean canDismiss(Object token) {
-                return true;
-            }
-
-            @Override
-            public void onDismiss(View view, Object token) {
-                //parent.removeView(holder.s);
-                //convertView.removeAllViews();
-                timersArrayList.remove(timersArrayList.get(position));
-                notifyDataSetChanged();
-            }
-        }
-        ));
-
-        (holder.e).setOnTouchListener(new SwipeToDismissListSubItem(
-                parent, null, new SwipeToDismissListSubItem.DismissCallbacks() {
-            @Override
-            public boolean canDismiss(Object token) {
-                return true;
-            }
-
-            @Override
-            public void onDismiss(View view, Object token) {
-                //parent.removeView(holder.s);
-                //convertView.removeAllViews();
-                timersArrayList.remove(timersArrayList.get(position));
-                notifyDataSetChanged();
-            }
-        }
-        ));
-
-        (holder.c).setOnTouchListener(new SwipeToDismissListSubItem(
-                parent, null, new SwipeToDismissListSubItem.DismissCallbacks() {
-            @Override
-            public boolean canDismiss(Object token) {
-                return true;
-            }
-
-            @Override
-            public void onDismiss(View view, Object token) {
-                //parent.removeView(holder.s);
-                //convertView.removeAllViews();
-                timersArrayList.remove(timersArrayList.get(position));
-                notifyDataSetChanged();
-            }
-        }
-        ));
 
         return convertView;
     }
