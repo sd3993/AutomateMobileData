@@ -1,18 +1,23 @@
 package com.sd3993.amd;
 
-import android.app.Activity;
+import android.animation.Animator;
+import android.animation.AnimatorListenerAdapter;
+import android.animation.ValueAnimator;
 import android.app.Dialog;
 import android.app.DialogFragment;
 import android.app.FragmentManager;
 import android.app.TimePickerDialog;
 import android.content.Context;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.text.format.DateFormat;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewAnimationUtils;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.CheckBox;
+import android.widget.CompoundButton;
 import android.widget.TextView;
 import android.widget.TimePicker;
 
@@ -20,26 +25,47 @@ import java.util.ArrayList;
 
 public class ScheduleAdapter extends BaseAdapter {
 
-    static ArrayList<Timers> timersArrayList;
     static String type;
-    static int pos;
-    Activity context;
+    static int position;
+    boolean isSetByUser;
+    Context context;
     FragmentManager fragmentManager;
 
-    public ScheduleAdapter(Activity context, ArrayList<Timers> timersArrayList) {
+    public ScheduleAdapter(Context context) {
         super();
         this.context = context;
-        ScheduleAdapter.timersArrayList = timersArrayList;
+    }
+
+    public static int getPosition() {
+        return ScheduleAdapter.position;
+    }
+
+    public static void setPosition(int position) {
+        ScheduleAdapter.position = position;
+    }
+
+    public static ArrayList<Timers> getList() {
+        return Schedule.timersArrayList;
+    }
+
+    public static void updateList(String type, String store) {
+        if (type.equalsIgnoreCase("start"))
+            getList().get(getPosition()).startTime = store;
+        else if (type.equalsIgnoreCase("end"))
+            getList().get(getPosition()).endTime = store;
+        else if (type.equalsIgnoreCase("state"))
+            getList().get(getPosition()).isEnabled = Boolean.valueOf(store);
+        Schedule.scheduleAdapter.notifyDataSetChanged();
     }
 
     @Override
     public int getCount() {
-        return (timersArrayList.size());
+        return (getList().size());
     }
 
     @Override
     public Object getItem(int position) {
-        return timersArrayList.get(position);
+        return getList().get(position);
     }
 
     @Override
@@ -50,7 +76,7 @@ public class ScheduleAdapter extends BaseAdapter {
     @Override
     public View getView(final int position, View convertView, ViewGroup parent) {
 
-        Holder holder;
+        final Holder holder;
 
         if (convertView == null) {
             LayoutInflater inflater = (LayoutInflater) context
@@ -61,34 +87,89 @@ public class ScheduleAdapter extends BaseAdapter {
             holder.s = (TextView) convertView.findViewById(R.id.startTime);
             holder.e = (TextView) convertView.findViewById(R.id.endTime);
             holder.c = (CheckBox) convertView.findViewById(R.id.alarm_enabled);
-
+            holder.item = convertView.findViewById(R.id.list_item_bg);
             convertView.setTag(holder);
         } else {
             holder = (Holder) convertView.getTag();
         }
 
-        (holder.s).setText((timersArrayList.get(position)).startTime);
-        (holder.e).setText((timersArrayList.get(position)).endTime);
+        if (getList().get(position).isEnabled)
+            changeBgColor(holder.item, "#FFDEFFDD", position);
+        else
+            changeBgColor(holder.item, "#FFFFD4D4", position);
 
-        (holder.s).setOnClickListener(new View.OnClickListener() {
+        holder.s.setText((getList().get(position)).startTime);
+        holder.e.setText((getList().get(position)).endTime);
+        holder.c.setText((getList().get(position)).isEnabled ? "Enabled" : "Disabled");
+
+        holder.s.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                showTimePickerDialog("start", position);
+                setPosition(position);
+                showTimePickerDialog("start");
             }
         });
-        (holder.e).setOnClickListener(new View.OnClickListener() {
+        holder.e.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                showTimePickerDialog("end", position);
+                setPosition(position);
+                showTimePickerDialog("end");
+            }
+        });
+
+        holder.c.setOnCheckedChangeListener(null);
+        holder.c.setChecked((getList().get(position)).isEnabled);
+
+        holder.c.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton compoundButton, boolean isEnabled) {
+                isSetByUser = true;
+                setPosition(position);
+                updateList("state", String.valueOf(isEnabled));
             }
         });
 
         return convertView;
     }
 
-    public void showTimePickerDialog(String type, int pos) {
+    public void changeBgColor(final View view, final String bgColor, int position) {
+
+        // get the center for the clipping circle
+        int cx = (view.getLeft() + view.getRight()) / 2;
+        int cy = (view.getTop() + view.getBottom()) / 2;
+
+        // get the initial radius for the clipping circle
+        int initialRadius = view.getWidth();
+        // create the animation (the final radius is zero)
+        ValueAnimator hideAnim =
+                ViewAnimationUtils.createCircularReveal(view, cx, cy, initialRadius, 0);
+        hideAnim.setDuration(300);
+
+        // get the final radius for the clipping circle
+        int finalRadius = view.getWidth();
+        // create and start the animator for this view
+        // (the start radius is zero)
+        final ValueAnimator showAnim =
+                ViewAnimationUtils.createCircularReveal(view, cx, cy, 0, finalRadius);
+        showAnim.setDuration(500);
+
+        hideAnim.addListener(new AnimatorListenerAdapter() {
+            @Override
+            public void onAnimationEnd(Animator animation) {
+                super.onAnimationEnd(animation);
+                view.setBackgroundColor(Color.parseColor(bgColor));
+                showAnim.start();
+            }
+        });
+
+        if (isSetByUser && (getPosition() == position))
+            hideAnim.start();
+        else
+            view.setBackgroundColor(Color.parseColor(bgColor));
+    }
+
+    public void showTimePickerDialog(String type) {
         ScheduleAdapter.type = type;
-        ScheduleAdapter.pos = pos;
         DialogFragment timePickerFragment = new TimePickerFragment();
         timePickerFragment.show(fragmentManager, "timePicker");
     }
@@ -97,6 +178,7 @@ public class ScheduleAdapter extends BaseAdapter {
         TextView s;
         TextView e;
         CheckBox c;
+        View item;
     }
 
     public static class TimePickerFragment extends DialogFragment
@@ -109,11 +191,11 @@ public class ScheduleAdapter extends BaseAdapter {
             String initTime = "";
 
             if (type.equalsIgnoreCase("start")) {
-                initTime = (timersArrayList.get(pos)).startTime + ' ';
+                initTime = (getList().get(getPosition())).startTime + ' ';
                 if (initTime.equals("Start Time "))
                     initTime = "00:00 ";
             } else if (type.equalsIgnoreCase("end")) {
-                initTime = (timersArrayList.get(pos)).endTime + ' ';
+                initTime = (getList().get(getPosition())).endTime + ' ';
                 if (initTime.equals("End Time "))
                     initTime = "00:00 ";
             }
@@ -153,7 +235,7 @@ public class ScheduleAdapter extends BaseAdapter {
             if (m.length() == 1)
                 m = "0" + m;
 
-            Schedule.updateList(type, pos, (hour + ":" + m + " " + am_pm));
+            updateList(type, (hour + ":" + m + " " + am_pm));
         }
     }
 }

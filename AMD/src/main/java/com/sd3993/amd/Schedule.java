@@ -6,8 +6,6 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.ListView;
 
-import com.google.gson.Gson;
-
 import java.util.ArrayList;
 
 
@@ -16,21 +14,12 @@ public class Schedule extends Activity {
     static public ScheduleAdapter scheduleAdapter;
     static ArrayList<Timers> timersArrayList = new ArrayList<Timers>();
     public ListView listView;
-    String timersJSON;
-
-    public static void updateList(String type, int pos, String time) {
-        if (type.equalsIgnoreCase("start"))
-            timersArrayList.get(pos).startTime = time;
-        else if (type.equalsIgnoreCase("end"))
-            timersArrayList.get(pos).endTime = time;
-        scheduleAdapter.notifyDataSetChanged();
-    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.schedule);
-        scheduleAdapter = new ScheduleAdapter(this, timersArrayList);
+        scheduleAdapter = new ScheduleAdapter(this);
         scheduleAdapter.fragmentManager = getFragmentManager();
         listView = (ListView) this.findViewById(R.id.listView);
         listView.setAdapter(scheduleAdapter);
@@ -46,6 +35,7 @@ public class Schedule extends Activity {
                         for (int position : reverseSortedPositions) {
                             timersArrayList.remove(timersArrayList.get(position));
                         }
+                        scheduleAdapter.isSetByUser = false;
                         scheduleAdapter.notifyDataSetChanged();
                     }
                 }
@@ -81,7 +71,7 @@ public class Schedule extends Activity {
 
     public void addAlarm() {
         timersArrayList.add(new Timers());
-        timersJSON = new Gson().toJson(timersArrayList);
+        scheduleAdapter.isSetByUser = false;
         scheduleAdapter.notifyDataSetChanged();
     }
 }
