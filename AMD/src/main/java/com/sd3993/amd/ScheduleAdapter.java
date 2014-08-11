@@ -8,7 +8,6 @@ import android.app.DialogFragment;
 import android.app.FragmentManager;
 import android.app.TimePickerDialog;
 import android.content.Context;
-import android.graphics.Color;
 import android.os.Bundle;
 import android.text.format.DateFormat;
 import android.view.LayoutInflater;
@@ -94,9 +93,9 @@ public class ScheduleAdapter extends BaseAdapter {
         }
 
         if (getList().get(position).isEnabled)
-            changeBgColor(holder.item, "#FFDEFFDD", position);
+            changeBgColor(holder.item, R.drawable.bg_alarm_enabled, position);
         else
-            changeBgColor(holder.item, "#FFFFD4D4", position);
+            changeBgColor(holder.item, R.drawable.bg_alarm_disabled, position);
 
         holder.s.setText((getList().get(position)).startTime);
         holder.e.setText((getList().get(position)).endTime);
@@ -132,7 +131,7 @@ public class ScheduleAdapter extends BaseAdapter {
         return convertView;
     }
 
-    public void changeBgColor(final View view, final String bgColor, int position) {
+    public void changeBgColor(final View view, final int bgColor, int position) {
 
         // get the center for the clipping circle
         int cx = (view.getLeft() + view.getRight()) / 2;
@@ -157,7 +156,7 @@ public class ScheduleAdapter extends BaseAdapter {
             @Override
             public void onAnimationEnd(Animator animation) {
                 super.onAnimationEnd(animation);
-                view.setBackgroundColor(Color.parseColor(bgColor));
+                view.setBackgroundResource(bgColor);
                 showAnim.start();
             }
         });
@@ -165,7 +164,7 @@ public class ScheduleAdapter extends BaseAdapter {
         if (isSetByUser && (getPosition() == position))
             hideAnim.start();
         else
-            view.setBackgroundColor(Color.parseColor(bgColor));
+            view.setBackgroundResource(bgColor);
     }
 
     public void showTimePickerDialog(String type) {

@@ -13,7 +13,7 @@ public class Schedule extends Activity {
 
     static public ScheduleAdapter scheduleAdapter;
     static ArrayList<Timers> timersArrayList = new ArrayList<Timers>();
-    public ListView listView;
+    ListView listView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
