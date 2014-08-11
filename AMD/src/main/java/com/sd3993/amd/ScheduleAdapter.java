@@ -3,11 +3,13 @@ package com.sd3993.amd;
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.animation.ValueAnimator;
+import android.annotation.SuppressLint;
 import android.app.Dialog;
 import android.app.DialogFragment;
 import android.app.FragmentManager;
 import android.app.TimePickerDialog;
 import android.content.Context;
+import android.os.Build;
 import android.os.Bundle;
 import android.text.format.DateFormat;
 import android.view.LayoutInflater;
@@ -41,6 +43,10 @@ public class ScheduleAdapter extends BaseAdapter {
 
     public static void setPosition(int position) {
         ScheduleAdapter.position = position;
+    }
+
+    public static boolean isLPreview() {
+        return Build.VERSION.SDK_INT > Build.VERSION_CODES.KITKAT;
     }
 
     public static ArrayList<Timers> getList() {
@@ -131,39 +137,41 @@ public class ScheduleAdapter extends BaseAdapter {
         return convertView;
     }
 
+    @SuppressLint("NewApi")
     public void changeBgColor(final View view, final int bgColor, int position) {
 
-        // get the center for the clipping circle
-        int cx = (view.getLeft() + view.getRight()) / 2;
-        int cy = (view.getTop() + view.getBottom()) / 2;
+        if (isSetByUser && (getPosition() == position) && isLPreview()) {
+            // get the center for the clipping circle
+            int cx = (view.getLeft() + view.getRight()) / 2;
+            int cy = (view.getTop() + view.getBottom()) / 2;
 
-        // get the initial radius for the clipping circle
-        int initialRadius = view.getWidth();
-        // create the animation (the final radius is zero)
-        ValueAnimator hideAnim =
-                ViewAnimationUtils.createCircularReveal(view, cx, cy, initialRadius, 0);
-        hideAnim.setDuration(300);
+            // get the initial radius for the clipping circle
+            int initialRadius = view.getWidth();
+            // create the animation (the final radius is zero)
+            ValueAnimator hideAnim =
+                    ViewAnimationUtils.createCircularReveal(view, cx, cy, initialRadius, 0);
+            hideAnim.setDuration(300);
 
-        // get the final radius for the clipping circle
-        int finalRadius = view.getWidth();
-        // create and start the animator for this view
-        // (the start radius is zero)
-        final ValueAnimator showAnim =
-                ViewAnimationUtils.createCircularReveal(view, cx, cy, 0, finalRadius);
-        showAnim.setDuration(500);
+            // get the final radius for the clipping circle
+            int finalRadius = view.getWidth();
+            // create and start the animator for this view
+            // (the start radius is zero)
+            final ValueAnimator showAnim =
+                    ViewAnimationUtils.createCircularReveal(view, cx, cy, 0, finalRadius);
+            showAnim.setDuration(500);
 
-        hideAnim.addListener(new AnimatorListenerAdapter() {
-            @Override
-            public void onAnimationEnd(Animator animation) {
-                super.onAnimationEnd(animation);
-                view.setBackgroundResource(bgColor);
-                showAnim.start();
-            }
-        });
+            hideAnim.addListener(new AnimatorListenerAdapter() {
 
-        if (isSetByUser && (getPosition() == position))
+                @Override
+                public void onAnimationEnd(Animator animation) {
+                    super.onAnimationEnd(animation);
+                    view.setBackgroundResource(bgColor);
+                    showAnim.start();
+                }
+            });
+
             hideAnim.start();
-        else
+        } else
             view.setBackgroundResource(bgColor);
     }
 
