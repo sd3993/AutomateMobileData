@@ -28,13 +28,14 @@ public class ScheduleAdapter extends BaseAdapter {
 
     static String type;
     static int position;
-    boolean isSetByUser;
+    static boolean isSetByUser;
     Context context;
     FragmentManager fragmentManager;
 
-    public ScheduleAdapter(Context context) {
+    public ScheduleAdapter(Context context, FragmentManager fragmentManager) {
         super();
         this.context = context;
+        this.fragmentManager = fragmentManager;
     }
 
     public static int getPosition() {

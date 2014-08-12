@@ -19,8 +19,7 @@ public class Schedule extends Activity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.schedule);
-        scheduleAdapter = new ScheduleAdapter(this);
-        scheduleAdapter.fragmentManager = getFragmentManager();
+        scheduleAdapter = new ScheduleAdapter(this, getFragmentManager());
         listView = (ListView) this.findViewById(R.id.listView);
         listView.setAdapter(scheduleAdapter);
         SwipeToDismissListener touchListener = new SwipeToDismissListener(listView,
@@ -35,7 +34,7 @@ public class Schedule extends Activity {
                         for (int position : reverseSortedPositions) {
                             timersArrayList.remove(timersArrayList.get(position));
                         }
-                        scheduleAdapter.isSetByUser = false;
+                        ScheduleAdapter.isSetByUser = false;
                         scheduleAdapter.notifyDataSetChanged();
                     }
                 }
@@ -71,7 +70,7 @@ public class Schedule extends Activity {
 
     public void addAlarm() {
         timersArrayList.add(new Timers());
-        scheduleAdapter.isSetByUser = false;
+        ScheduleAdapter.isSetByUser = false;
         scheduleAdapter.notifyDataSetChanged();
     }
 }
