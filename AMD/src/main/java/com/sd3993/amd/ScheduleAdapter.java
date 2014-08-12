@@ -124,7 +124,6 @@ public class ScheduleAdapter extends BaseAdapter {
 
         holder.c.setOnCheckedChangeListener(null);
         holder.c.setChecked((getList().get(position)).isEnabled);
-
         holder.c.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton compoundButton, boolean isEnabled) {
@@ -167,6 +166,7 @@ public class ScheduleAdapter extends BaseAdapter {
                     super.onAnimationEnd(animation);
                     view.setBackgroundResource(bgColor);
                     showAnim.start();
+                    isSetByUser = false;
                 }
             });
 
