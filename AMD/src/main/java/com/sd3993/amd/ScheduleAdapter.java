@@ -9,6 +9,7 @@ import android.app.DialogFragment;
 import android.app.FragmentManager;
 import android.app.TimePickerDialog;
 import android.content.Context;
+import android.graphics.drawable.TransitionDrawable;
 import android.os.Build;
 import android.os.Bundle;
 import android.text.format.DateFormat;
@@ -140,38 +141,47 @@ public class ScheduleAdapter extends BaseAdapter {
     @SuppressLint("NewApi")
     public void changeBgColor(final View view, final int bgColor, int position) {
 
-        if (isSetByUser && (getPosition() == position) && isLPreview()) {
-            // get the center for the clipping circle
-            int cx = (view.getLeft() + view.getRight()) / 2;
-            int cy = (view.getTop() + view.getBottom()) / 2;
+        if (isSetByUser && getPosition() == position) {
+            if (isLPreview()) {
+                // get the center for the clipping circle
+                int cx = (view.getLeft() + view.getRight()) / 2;
+                int cy = (view.getTop() + view.getBottom()) / 2;
 
-            // get the initial radius for the clipping circle
-            int initialRadius = view.getWidth();
-            // create the animation (the final radius is zero)
-            ValueAnimator hideAnim =
-                    ViewAnimationUtils.createCircularReveal(view, cx, cy, initialRadius, 0);
-            hideAnim.setDuration(300);
+                // get the initial radius for the clipping circle
+                int initialRadius = view.getWidth();
+                // create the animation (the final radius is zero)
+                ValueAnimator hideAnim =
+                        ViewAnimationUtils.createCircularReveal(view, cx, cy, initialRadius, 0);
+                hideAnim.setDuration(300);
 
-            // get the final radius for the clipping circle
-            int finalRadius = view.getWidth();
-            // create and start the animator for this view
-            // (the start radius is zero)
-            final ValueAnimator showAnim =
-                    ViewAnimationUtils.createCircularReveal(view, cx, cy, 0, finalRadius);
-            showAnim.setDuration(500);
+                // get the final radius for the clipping circle
+                int finalRadius = view.getWidth();
+                // create and start the animator for this view
+                // (the start radius is zero)
+                final ValueAnimator showAnim =
+                        ViewAnimationUtils.createCircularReveal(view, cx, cy, 0, finalRadius);
+                showAnim.setDuration(500);
 
-            hideAnim.addListener(new AnimatorListenerAdapter() {
+                hideAnim.addListener(new AnimatorListenerAdapter() {
 
-                @Override
-                public void onAnimationEnd(Animator animation) {
-                    super.onAnimationEnd(animation);
-                    view.setBackgroundResource(bgColor);
-                    showAnim.start();
-                    isSetByUser = false;
-                }
-            });
+                    @Override
+                    public void onAnimationEnd(Animator animation) {
+                        super.onAnimationEnd(animation);
+                        view.setBackgroundResource(bgColor);
+                        showAnim.start();
+                        isSetByUser = false;
+                    }
+                });
 
-            hideAnim.start();
+                hideAnim.start();
+            } else {
+                view.setBackgroundResource(R.transition.fade);
+                final TransitionDrawable background = (TransitionDrawable) view.getBackground();
+                if (getList().get(position).isEnabled)
+                    background.startTransition(300);
+                else
+                    background.reverseTransition(300);
+            }
         } else
             view.setBackgroundResource(bgColor);
     }
@@ -194,7 +204,6 @@ public class ScheduleAdapter extends BaseAdapter {
 
         @Override
         public Dialog onCreateDialog(Bundle savedInstanceState) {
-            // Use the current time as the default values for the picker
 
             String initTime = "";
 
