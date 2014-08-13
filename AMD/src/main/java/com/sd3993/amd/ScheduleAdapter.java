@@ -218,7 +218,8 @@ public class ScheduleAdapter extends BaseAdapter {
             }
 
             int hour = Integer.parseInt(initTime.substring(0, initTime.indexOf(':')));
-            int minute = Integer.parseInt(initTime.substring(initTime.indexOf(':') + 1, initTime.indexOf(' ')));
+            int minute = Integer.parseInt(initTime.substring(initTime.indexOf(':') + 1,
+                    initTime.indexOf(' ')));
 
             if (initTime.substring(initTime.indexOf(' ')).trim().equals("PM")) {
                 if (hour != 12)
