@@ -1,25 +1,19 @@
 package com.sd3993.amd;
 
-import android.animation.Animator;
-import android.animation.AnimatorListenerAdapter;
-import android.animation.ValueAnimator;
-import android.annotation.SuppressLint;
 import android.app.Dialog;
 import android.app.DialogFragment;
 import android.app.FragmentManager;
 import android.app.TimePickerDialog;
 import android.content.Context;
-import android.graphics.drawable.TransitionDrawable;
-import android.os.Build;
 import android.os.Bundle;
 import android.text.format.DateFormat;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.view.ViewAnimationUtils;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.TimePicker;
 
@@ -29,7 +23,6 @@ public class ScheduleAdapter extends BaseAdapter {
 
     static String type;
     static int position;
-    static boolean isSetByUser;
     Context context;
     FragmentManager fragmentManager;
 
@@ -45,10 +38,6 @@ public class ScheduleAdapter extends BaseAdapter {
 
     public static void setPosition(int position) {
         ScheduleAdapter.position = position;
-    }
-
-    public static boolean isLPreview() {
-        return Build.VERSION.SDK_INT > Build.VERSION_CODES.KITKAT;
     }
 
     public static ArrayList<Timers> getList() {
@@ -94,16 +83,13 @@ public class ScheduleAdapter extends BaseAdapter {
             holder.s = (TextView) convertView.findViewById(R.id.startTime);
             holder.e = (TextView) convertView.findViewById(R.id.endTime);
             holder.c = (CheckBox) convertView.findViewById(R.id.alarm_enabled);
-            holder.item = convertView.findViewById(R.id.list_item_bg);
+            holder.item = (LinearLayout) convertView.findViewById(R.id.item_card);
             convertView.setTag(holder);
         } else {
             holder = (Holder) convertView.getTag();
         }
 
-        if (getList().get(position).isEnabled)
-            changeBgColor(holder.item, R.drawable.bg_alarm_enabled, position);
-        else
-            changeBgColor(holder.item, R.drawable.bg_alarm_disabled, position);
+        changeStateColor(holder.item, position);
 
         holder.s.setText((getList().get(position)).startTime);
         holder.e.setText((getList().get(position)).endTime);
@@ -129,7 +115,6 @@ public class ScheduleAdapter extends BaseAdapter {
         holder.c.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton compoundButton, boolean isEnabled) {
-                isSetByUser = true;
                 setPosition(position);
                 updateList("state", String.valueOf(isEnabled));
             }
@@ -138,52 +123,11 @@ public class ScheduleAdapter extends BaseAdapter {
         return convertView;
     }
 
-    @SuppressLint("NewApi")
-    public void changeBgColor(final View view, final int bgColor, int position) {
-
-        if (isSetByUser && getPosition() == position) {
-            if (isLPreview()) {
-                // get the center for the clipping circle
-                int cx = (view.getLeft() + view.getRight()) / 2;
-                int cy = (view.getTop() + view.getBottom()) / 2;
-
-                // get the initial radius for the clipping circle
-                int initialRadius = view.getWidth();
-                // create the animation (the final radius is zero)
-                ValueAnimator hideAnim =
-                        ViewAnimationUtils.createCircularReveal(view, cx, cy, initialRadius, 0);
-                hideAnim.setDuration(300);
-
-                // get the final radius for the clipping circle
-                int finalRadius = view.getWidth();
-                // create and start the animator for this view
-                // (the start radius is zero)
-                final ValueAnimator showAnim =
-                        ViewAnimationUtils.createCircularReveal(view, cx, cy, 0, finalRadius);
-                showAnim.setDuration(500);
-
-                hideAnim.addListener(new AnimatorListenerAdapter() {
-
-                    @Override
-                    public void onAnimationEnd(Animator animation) {
-                        super.onAnimationEnd(animation);
-                        view.setBackgroundResource(bgColor);
-                        showAnim.start();
-                        isSetByUser = false;
-                    }
-                });
-
-                hideAnim.start();
-            } else {
-                view.setBackgroundResource(R.transition.fade);
-                final TransitionDrawable background = (TransitionDrawable) view.getBackground();
-                if (getList().get(position).isEnabled)
-                    background.startTransition(300);
-                else
-                    background.reverseTransition(300);
-            }
-        } else
-            view.setBackgroundResource(bgColor);
+    public void changeStateColor(final LinearLayout view, int position) {
+        if (getList().get(position).isEnabled)
+            view.setBackgroundResource(R.drawable.bg_enabled);
+        else
+            view.setBackgroundResource(R.drawable.bg_disabled);
     }
 
     public void showTimePickerDialog(String type) {
@@ -196,7 +140,7 @@ public class ScheduleAdapter extends BaseAdapter {
         TextView s;
         TextView e;
         CheckBox c;
-        View item;
+        LinearLayout item;
     }
 
     public static class TimePickerFragment extends DialogFragment

@@ -8,7 +8,6 @@ import android.widget.ListView;
 
 import java.util.ArrayList;
 
-
 public class Schedule extends Activity {
 
     static public ScheduleAdapter scheduleAdapter;
@@ -34,7 +33,6 @@ public class Schedule extends Activity {
                         for (int position : reverseSortedPositions) {
                             timersArrayList.remove(timersArrayList.get(position));
                         }
-                        ScheduleAdapter.isSetByUser = false;
                         scheduleAdapter.notifyDataSetChanged();
                     }
                 }
@@ -70,7 +68,6 @@ public class Schedule extends Activity {
 
     public void addAlarm() {
         timersArrayList.add(new Timers());
-        ScheduleAdapter.isSetByUser = false;
         scheduleAdapter.notifyDataSetChanged();
     }
 }
