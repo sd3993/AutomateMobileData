@@ -3,12 +3,11 @@
     android:layout_height="wrap_content"
     android:orientation="vertical">
 
-    <ListView
+    <android.support.v7.widget.RecyclerView
         android:id="@+id/listView"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="10dp"
-        android:animateLayoutChanges="true"
         android:divider="@null"
         android:dividerHeight="0dp"
         android:filterTouchesWhenObscured="true" />

@@ -2,26 +2,30 @@ package com.sd3993.amd;
 
 import android.app.Activity;
 import android.os.Bundle;
+import android.support.v7.widget.DefaultItemAnimator;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.widget.ListView;
 
 import java.util.ArrayList;
 
 public class Schedule extends Activity {
 
-    static public ScheduleAdapter scheduleAdapter;
+    static public ScheduleAdapter mScheduleAdapter;
     static ArrayList<Timers> timersArrayList = new ArrayList<Timers>();
-    ListView listView;
+    RecyclerView mRecyclerView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.schedule);
-        scheduleAdapter = new ScheduleAdapter(this, getFragmentManager());
-        listView = (ListView) this.findViewById(R.id.listView);
-        listView.setAdapter(scheduleAdapter);
-        SwipeToDismissListener touchListener = new SwipeToDismissListener(listView,
+        mScheduleAdapter = new ScheduleAdapter(this, getFragmentManager());
+        mRecyclerView = (RecyclerView) this.findViewById(R.id.listView);
+        mRecyclerView.setLayoutManager(new LinearLayoutManager(this));
+        mRecyclerView.setItemAnimator(new DefaultItemAnimator());
+        mRecyclerView.setAdapter(mScheduleAdapter);
+        /*SwipeToDismissListener touchListener = new SwipeToDismissListener(listView,
                 new SwipeToDismissListener.DismissCallbacks() {
                     @Override
                     public boolean canDismiss(int position) {
@@ -40,7 +44,7 @@ public class Schedule extends Activity {
         listView.setOnTouchListener(touchListener);
         // Setting this scroll listener is required to ensure that during ListView scrolling,
         // we don't look for swipes.
-        listView.setOnScrollListener(touchListener.makeScrollListener());
+        listView.setOnScrollListener(touchListener.makeScrollListener());*/
     }
 
     @Override
@@ -68,6 +72,6 @@ public class Schedule extends Activity {
 
     public void addAlarm() {
         timersArrayList.add(new Timers());
-        scheduleAdapter.notifyDataSetChanged();
+        mScheduleAdapter.notifyDataSetChanged();
     }
 }
